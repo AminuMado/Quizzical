@@ -1,16 +1,16 @@
 import React from 'react';
 
-export default function Question() {
+export default function Question(props) {
   return (
     <div className="question-container">
       <div className="question">
-        <h1>What is a Question?</h1>
+        <p>{props.question}</p>
       </div>
       <div className="options">
-        <button>Option 1</button>
-        <button>Option 2</button>
-        <button>Option 3</button>
-        <button>Option 4</button>
+        <button className="option-btn">{props.options[0]}</button>
+        <button className="option-btn">{props.options[1]}</button>
+        <button className="option-btn">{props.options[2]}</button>
+        <button className="option-btn">{props.options[3]}</button>
       </div>
     </div>
   );
