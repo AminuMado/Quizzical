@@ -13,7 +13,7 @@
   gap: 30px;
 }
 /* Start Section Styles */
-.start-container button {
+.start-quiz-btn {
   height: 52px;
   width: 193px;
   border-radius: 15px;
@@ -49,7 +49,7 @@
   background: #f5f7fb;
   gap: 30px;
 }
-.main-container button {
+.check-answers-btn {
   height: 52px;
   width: 193px;
   border-radius: 15px;
@@ -71,4 +71,34 @@
   height: 135px;
   left: 0;
   bottom: 0;
+}
+/* Question Section */
+.question-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  justify-content: center;
+  border-bottom: 1px solid;
+  padding: 10px;
+}
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+}
+.option-btn {
+  width: auto;
+  height: auto;
+  border: 0.771045px solid #4d5b9e;
+  box-sizing: border-box;
+  border-radius: 7.71045px;
+  background: none;
+  font-size: 25px;
+  padding: 5px;
+  cursor: pointer;
+}
+.option-btn:hover {
+  background: #d6dbf5;
 }
