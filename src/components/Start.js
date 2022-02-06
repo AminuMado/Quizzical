@@ -9,9 +9,7 @@ export default function Start() {
         This is quiz based game.Try it out, Its fun.Lets see how much
         trivia you have in you
       </p>
-      <button> Start Quiz</button>
-      <img src={blob1_Src} className="start-blob1"></img>
-      <img src={blob2_Src} className="start-blob2"></img>
+      <button className="start-quiz-btn"> Start Quiz</button>
     </div>
   );
 }
