@@ -7,6 +7,9 @@ import Question from './components/Question';
 
 export default function App() {
   const [data, setData] = React.useState([]);
+  const [start, setStart] = React.useState(true);
+  const [checkAnswers, setCheckAnswers] = React.useState(false);
+  const [restartGame, setRestartGame] = React.useState(false);
 
   React.useEffect(() => {
     fetch('https://opentdb.com/api.php?amount=5&type=multiple').then(
@@ -34,10 +37,9 @@ export default function App() {
           });
         }),
     );
-  }, []);
+  }, [restartGame]);
   function handleClick(event, id) {
     setUserAnswer(event, id);
-    console.log(data);
   }
   function setUserAnswer(event, id) {
     const selectedOption = event.currentTarget.firstChild.innerText;
@@ -49,7 +51,9 @@ export default function App() {
       }),
     );
   }
-
+  function startQuizBtnClick() {
+    setStart((prev) => !prev);
+  }
   const questions = data.map((question, index) => {
     return (
       <Question
@@ -64,11 +68,24 @@ export default function App() {
 
   return (
     <div className="main-container">
-      {questions}
-      <div className="result-container">
-        <p className="result"></p>
-        <button className="result-btn"></button>
-      </div>
+      {start ? <Start handleClick={startQuizBtnClick} /> : questions}
+
+      {!start && (
+        <div className="result-container">
+          {checkAnswers && (
+            <p className="result">You scored 3/5 correct answers</p>
+          )}
+          <button
+            className="result-btn"
+            onClick={() => {
+              setCheckAnswers((prev) => !prev);
+              checkAnswers ? setRestartGame((prev) => !prev) : null;
+            }}
+          >
+            {checkAnswers ? 'Play Again' : 'Check Answers'}
+          </button>
+        </div>
+      )}
       <img src={blob1_Src} className="start-blob1"></img>
       <img src={blob2_Src} className="start-blob2"></img>
     </div>
