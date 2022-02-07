@@ -86,8 +86,14 @@ export default function App() {
           </button>
         </div>
       )}
-      <img src={blob1_Src} className="start-blob1"></img>
-      <img src={blob2_Src} className="start-blob2"></img>
+      <img
+        src={blob1_Src}
+        className={start ? 'start-blob1' : 'main-blob1'}
+      ></img>
+      <img
+        src={blob2_Src}
+        className={start ? 'start-blob2' : 'main-blob2'}
+      ></img>
     </div>
   );
 }
