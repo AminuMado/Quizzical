@@ -1,10 +1,11 @@
 import React from 'react';
 
 export default function Question(props) {
+  const question = props.question;
   return (
     <div className="question-container">
       <div className="question">
-        <p>{props.question}</p>
+        <h3 dangerouslySetInnerHTML={{ __html: props.question }} />
       </div>
       <div className="options">
         <button className="option-btn">{props.options[0]}</button>
