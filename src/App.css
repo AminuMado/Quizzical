@@ -107,3 +107,21 @@
 .active {
   background-color: #d6dbf5;
 }
+.result-container {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  align-items: center;
+}
+.result {
+  font-size: 25px;
+}
+.result-btn {
+  height: 52px;
+  width: 193px;
+  border-radius: 15px;
+  background: #4d5b9e;
+  color: white;
+  font-size: 25px;
+  cursor: pointer;
+}
