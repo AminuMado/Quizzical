@@ -15,13 +15,17 @@ export default function App() {
           setData((prev) => {
             const tempHolder = [];
             resp.results.forEach((element) => {
+              const options = [
+                element.correct_answer,
+                ...element.incorrect_answers,
+              ];
+              const shuffledOptions = options.sort(
+                () => Math.random() - 0.5,
+              );
               const question = {
                 question: element.question,
                 answer: element.correct_answer,
-                options: [
-                  element.correct_answer,
-                  ...element.incorrect_answers,
-                ],
+                options: shuffledOptions,
                 selected: '',
               };
               tempHolder.push(question);
@@ -33,6 +37,7 @@ export default function App() {
   }, []);
   function handleClick(event, id) {
     setUserAnswer(event, id);
+    console.log(data);
   }
   function setUserAnswer(event, id) {
     const selectedOption = event.currentTarget.firstChild.innerText;
@@ -45,16 +50,17 @@ export default function App() {
     );
   }
 
-  const questions = data.map((question, index) => (
-    // shuffle the options array here
-    <Question
-      key={index}
-      id={index}
-      question={question.question}
-      options={question.options}
-      handleClick={handleClick}
-    />
-  ));
+  const questions = data.map((question, index) => {
+    return (
+      <Question
+        key={index}
+        id={index}
+        question={question.question}
+        options={question.options}
+        handleClick={handleClick}
+      />
+    );
+  });
 
   return (
     <div className="main-container">
