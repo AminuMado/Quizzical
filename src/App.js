@@ -1,99 +1,183 @@
 import React from 'react';
 import './App.css';
-import blob1_Src from '../public/blobs.png';
-import blob2_Src from '../public/blob5.png';
-import Start from './components/Start';
-import Question from './components/Question';
+import yellow_blob_Src from '../public/blobs.png';
+import blue_blob_Src from '../public/blob5.png';
+import StartPage from './components/StartPage';
+import Button from './components/Button';
+import { nanoid } from 'nanoid';
 
 export default function App() {
-  const [data, setData] = React.useState([]);
-  const [start, setStart] = React.useState(true);
-  const [checkAnswers, setCheckAnswers] = React.useState(false);
-  const [restartGame, setRestartGame] = React.useState(false);
+  // this initial array needs to have five blank string so they can be replaced by users quiz choices
+  const initialChoicesArray = ['', '', '', '', ''];
+  const initialOptionsArray = [0, 0, 0, 0, 0];
 
+  const [options, setOptions] = React.useState(initialOptionsArray);
+  const [questions, setQuestions] = React.useState([]);
+
+  const [quiz, setQuiz] = React.useState(false);
+  const [quizData, setQuizData] = React.useState([]);
+
+  const [message, setMessage] = React.useState(false);
+  const [count, setCount] = React.useState(0);
+  const [correctAnswers, setCorrectAnswers] = React.useState([]);
+  const [choices, setChoices] = React.useState(initialChoicesArray);
+
+  const [answered, setAnswered] = React.useState(false);
+  // This is the initial Api Call that gets the raw data
   React.useEffect(() => {
-    fetch('https://opentdb.com/api.php?amount=5&type=multiple').then(
-      (resp) =>
-        resp.json().then((resp) => {
-          setData((prev) => {
-            const tempHolder = [];
-            resp.results.forEach((element) => {
-              const options = [
-                element.correct_answer,
-                ...element.incorrect_answers,
-              ];
-              const shuffledOptions = options.sort(
-                () => Math.random() - 0.5,
-              );
-              const question = {
-                question: element.question,
-                answer: element.correct_answer,
-                options: shuffledOptions,
-                selected: '',
-              };
-              tempHolder.push(question);
-            });
-            return tempHolder;
-          });
-        }),
-    );
-  }, [restartGame]);
-  function handleClick(event, id) {
-    setUserAnswer(event, id);
+    if (!quiz) {
+      fetch('https://opentdb.com/api.php?amount=5&type=multiple')
+        .then((res) => res.json())
+        .then((data) => setQuizData(data.results));
+    }
+  }, [quiz]);
+  //This is where data is sorted out in to various state variables
+  React.useEffect(() => {
+    const tempQuestions = [];
+
+    const tempCorrectAnswersArray = [];
+    quizData.map((item, index) => {
+      //Correct Answers
+      // create correctAnswers container
+      // push correct answers
+      // set correctAnswers state variable
+      const correctAnswers = item.correct_answer;
+      tempCorrectAnswersArray.push(correctAnswers);
+      setCorrectAnswers(tempCorrectAnswersArray);
+
+      // Wrong Answers
+      // create a wrong answer container
+      // push wrong answers
+      // get the associated correct answer
+      // push the correct answer into the wrong answer array
+      // shuffle it
+      // This lets you have four options 3 wrong options and the correct option in one place
+      // This is done so as to let you be able to render all four of the options in one go
+      // on the button component
+
+      const wrongAnswers = item.incorrect_answers; // This is an array
+      const wrongAnswersArray = wrongAnswers.map((item) => {
+        return {
+          name: item,
+          isCorrect: false,
+          id: nanoid(),
+          index: index,
+        };
+      });
+
+      const correctAnswer = {
+        name: item.correct_answer,
+        isCorrect: true,
+        id: nanoid(),
+        index: index,
+      };
+      wrongAnswersArray.push(correctAnswer);
+      shuffle(wrongAnswersArray);
+
+      // Questions
+      // create a question object
+      // add the answers array to it
+      // enventually set the questions state variable
+
+      const questionObject = {
+        question: item.question,
+        answers: wrongAnswersArray,
+      };
+      return tempQuestions.push(questionObject);
+    });
+    setQuestions(tempQuestions);
+  }, [quizData]);
+
+  function startQuiz() {
+    setQuiz(true);
   }
-  function setUserAnswer(event, id) {
-    const selectedOption = event.currentTarget.firstChild.innerText;
-    setData((prevData) =>
-      prevData.map((item, index) => {
-        return id === index
-          ? { ...item, selected: selectedOption }
-          : item;
-      }),
-    );
+
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
   }
-  function startQuizBtnClick() {
-    setStart((prev) => !prev);
+
+  function checkAnswers(correctAnswers, choices) {
+    setCount(0);
+    if (choices.includes('')) {
+      setMessage(true);
+    }
+    for (let i = 0; i < correctAnswers.length; i++) {
+      if (correctAnswers[i] === choices[i]) {
+        setCount((prevState) => prevState + 1);
+      } else if (!choices.includes('')) {
+        setAnswered(true);
+        setMessage(false);
+      }
+    }
   }
-  const questions = data.map((question, index) => {
+
+  const quizQuestions = questions.map((item) => {
+    const answerOptions = item.answers.map((item) => {
+      return (
+        <Button
+          fixedAnswers={item.name}
+          id={item.id}
+          key={item.id}
+          index={item.index}
+          isCorrect={item.isCorrect}
+          answered={answered}
+          choices={choices}
+          setChoices={setChoices}
+          options={options}
+          setOptions={setOptions}
+          active={options[item.index] === item.id ? true : false}
+        />
+      );
+    });
     return (
-      <Question
-        key={index}
-        id={index}
-        question={question.question}
-        options={question.options}
-        handleClick={handleClick}
-      />
+      <div className="question-group">
+        <h2 dangerouslySetInnerHTML={{ __html: item.question }} />
+        <div className="button-container">{answerOptions}</div>
+      </div>
     );
   });
 
-  return (
-    <div className="main-container">
-      {start ? <Start handleClick={startQuizBtnClick} /> : questions}
+  const resetGame = () => {
+    setQuiz(false);
+    setAnswered(false);
+    // The function call below modifies state directly.
+    // This is not standard practice
+    setChoices(initialChoicesArray);
+  };
 
-      {!start && (
-        <div className="result-container">
-          {checkAnswers && (
-            <p className="result">You scored 3/5 correct answers</p>
+  return (
+    <div className="App">
+      <div className="landing-container">
+        <img src={yellow_blob_Src} className="yellow-blob"></img>
+        <img src={blue_blob_Src} className="blue-blob"></img>
+
+        {!quiz && <StartPage onStart={() => startQuiz()} />}
+        <div className="quiz-container">
+          {quiz && quizQuestions}
+          {message && (
+            <p className="message">You must answer all questions!</p>
           )}
-          <button
-            className="result-btn"
-            onClick={() => {
-              setCheckAnswers((prev) => !prev);
-              checkAnswers ? setRestartGame((prev) => !prev) : null;
-            }}
-          >
-            {checkAnswers ? 'Play Again' : 'Check Answers'}
-          </button>
+          {quiz && !answered && (
+            <button
+              className="quizzical-button"
+              onClick={() => checkAnswers(correctAnswers, choices)}
+            >
+              Check answers
+            </button>
+          )}
+          {answered && (
+            <div className="play-again-container">
+              <p>You scored {count}/5 correct answers</p>
+              <button
+                className="quizzical-button"
+                onClick={() => resetGame()}
+              >
+                Play again
+              </button>
+            </div>
+          )}
         </div>
-      )}
-      <img
-        src={blob1_Src}
-        className={start ? 'start-blob1' : 'main-blob1'}
-      ></img>
-      <img
-        src={blob2_Src}
-        className={start ? 'start-blob2' : 'main-blob2'}
-      ></img>
+      </div>
     </div>
   );
 }
